@@ -7,7 +7,6 @@ import com.project.api.domain.event.EventDetailsDTO;
 import com.project.api.domain.event.EventRequestDTO;
 import com.project.api.domain.event.EventResponseDTO;
 import com.project.api.repositories.EventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,17 +30,20 @@ public class EventService {
     @Value("${aws.bucket.name}")
     private String bucketName;
 
-    @Autowired
-    private AmazonS3 s3client;
+    private final AmazonS3 s3client;
 
-    @Autowired
-    private EventRepository eventRepository;
+    private final EventRepository eventRepository;
 
-    @Autowired
-    private AddressService addressService;
+    private final AddressService addressService;
 
-    @Autowired
-    private CouponService couponService;
+    private final CouponService couponService;
+
+    public EventService(AmazonS3 s3client, EventRepository eventRepository, AddressService addressService, CouponService couponService) {
+        this.s3client = s3client;
+        this.eventRepository = eventRepository;
+        this.addressService = addressService;
+        this.couponService = couponService;
+    }
 
     public Event createEvent(EventRequestDTO data) {
         String imgUrl = null;
@@ -141,7 +143,7 @@ public class EventService {
             file.delete();
             return s3client.getUrl(bucketName, fileName).toString();
         } catch (Exception e){
-            System.out.println("erro ao subir arquivo");
+            System.out.println("error ao subir file");
             return null;
         }
     }
